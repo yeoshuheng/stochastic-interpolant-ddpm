@@ -46,7 +46,7 @@ def forward_diffusion(x_0, t, device="cpu"):
     sqrt_alpha_cumprod_t = helper(sqrt_alpha_cumprod, t, x_0.shape)
     sqrt_one_minus_alpha_cumprod_t = helper(sqrt_one_minus_alpha_cumprod, t, x_0.shape)
     
-    # Based on parameterised formula for x[t].
+    # Based on parameterised formula for x[t], we add noise to the image.
     return sqrt_alpha_cumprod_t.to(device) * x_0.to(device) \
           + sqrt_one_minus_alpha_cumprod_t.to(device) * noise.to(device), noise.to(device)
 
