@@ -33,8 +33,6 @@ class UNetBlock(nn.Module):
         time_embedding = time_embedding[(..., ) + (None, ) * 2]
         time_embedded_conv = time_embedding + first_conv
         second_conv = self.bnorm(self.relu(self.conv2(time_embedded_conv)))
-        # If upsampling:
-        # If downsampling: 
         return self.transform(second_conv)
 
 
