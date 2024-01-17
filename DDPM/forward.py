@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+from config import CONFIG
 
 # Forward Process
 
@@ -12,7 +13,7 @@ import torch.nn.functional as F
 def linear_beta_schedule(t, start=0.0001, end=0.02):
     return torch.linspace(start, end, t)
 
-T = 200
+T = CONFIG["total_timesteps"]
 beta = linear_beta_schedule(T)
 alpha = 1 - beta
 alpha_cumprod = torch.cumprod(alpha, axis =0)
@@ -21,6 +22,7 @@ sqrt_recip_alpha = torch.sqrt(1 / alpha)
 sqrt_alpha_cumprod = torch.sqrt(alpha_cumprod)
 sqrt_one_minus_alpha_cumprod = torch.sqrt(1 - alpha_cumprod)
 posterior_variance = beta * (1. - alpha_cumprod_prev) / (1. - alpha_cumprod)
+
 
 def helper(vals, t, x_shape):
     """

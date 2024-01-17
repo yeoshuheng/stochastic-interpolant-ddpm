@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-from forward import beta, helper, sqrt_one_minus_alpha_cumprod, sqrt_recip_alpha, posterior_variance, forward_diffusion
+from .forward import beta, helper, sqrt_one_minus_alpha_cumprod, sqrt_recip_alpha, posterior_variance, forward_diffusion
 
 @torch.no_grad()
 def sample(x, t, model):

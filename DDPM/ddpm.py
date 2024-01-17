@@ -1,5 +1,5 @@
-from backward import UNetBlock
-from embedding import SinusoidalPositionEmbeddings
+from .backward import UNetBlock
+from .embedding import SinusoidalPositionEmbeddings
 import torch
 import torch.nn as nn
 
