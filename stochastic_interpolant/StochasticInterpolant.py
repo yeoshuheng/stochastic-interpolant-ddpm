@@ -79,6 +79,9 @@ class StochasticInterpolant(nn.Module):
             case "bn":
                 loss_1 = self.b_loss(self.b_net, t, x_t, x_0, x_1)
                 loss_2 = self.n_loss(self.s_net, t, x_t, x_0, x_1)
+            case "vn":
+                loss_1 = self.v_loss(self.v_net, t, x_t, x_0, x_t)
+                loss_2 = self.n_loss(self.n_net, t, x_t, x_0, x_1)
         return loss_1 + loss_2
 
     """
@@ -153,6 +156,40 @@ class StochasticInterpolant(nn.Module):
             x_next = x_curr + dX
             samples[step] = x_next
         return samples[-1], samples
+    
+    @torch.no_grad()
+    def sde_vn(self, x_0, direction="forward"):
+        n_timesteps = self.params["n_timesteps"]
+        samples = [[]] * (n_timesteps + 1)
+        samples[0] = x_0
+        delta_t = torch.full((32,), 1 / n_timesteps, dtype=torch.float32)
+        for step in range(1, n_timesteps+1):
+            x_curr = samples[step - 1]
+            t_tensor = torch.full((32,), step / n_timesteps, dtype=torch.float32)
+            t_tensor = torch.clip(x_curr, self.t_min, 1 - self.t_min)
+            dW = self.d * torch.randn_like(t_tensor, dtype=torch.float32)
+            match direction:
+                case "forward":
+                    v = self.v_net(x_curr, t_tensor)
+                    denoiser = self.n_net(x_curr, t_tensor)
+                    gamma_gamma = self.gamma(t_tensor) * self.gamma_der(t_tensor)
+                    s = torch.multiply(denoiser, denoiser_factor)
+                    s *= gamma_gamma
+                    b = v - gamma_gamma * s
+                    eps = self.epsilon(1 - t_tensor)
+                    dX = delta_t * (b - s * eps) + torch.sqrt(2 * eps) * dW
+                case "backward":
+                    v = self.v_net(x_curr, 1 - t_tensor)
+                    denoiser = self.n_net(x_curr, 1 - t_tensor)
+                    gamma_gamma = self.gamma(1 - t_tensor) * self.gamma_der(1 - t_tensor)
+                    denoiser_factor = -self.gamma_inv(1 - t_tensor)
+                    s = torch.multiply(denoiser, denoiser_factor)
+                    b = v - gamma_gamma * s
+                    eps = self.epsilon(1 - t_tensor)
+                    dX = delta_t * (b - s * eps) + torch.sqrt(2 * eps) * dW
+            x_net = x_curr + dX
+            samples[step] = x_net
+        return samples[-1], samples
 
     @torch.no_grad()
     def sde_vs(self, x_0, direction="forward"):
@@ -184,4 +221,3 @@ class StochasticInterpolant(nn.Module):
             samples[step] = x_next
         return samples[-1], samples
     
-
