@@ -26,7 +26,7 @@ class DDPM(nn.Module):
         self.upsample = nn.ModuleList([
             UNetBlock(up_sample_channels[i],
                       up_sample_channels[i + 1],
-                      time_emb_dim) for i in range(len(up_sample_channels) - 1)
+                      time_emb_dim, up=True) for i in range(len(up_sample_channels) - 1)
         ])
         # Final convolution (64 -> 3)
         self.output = nn.Conv2d(up_sample_channels[-1], image_channels, 1)
@@ -38,6 +38,7 @@ class DDPM(nn.Module):
         for down_block in self.downsample:
             x = down_block(x, t)
             residuals.append(x)
+        # (32, 1024, 4, 4)
         for up_block in self.upsample:
             res_x = residuals.pop()
             x = torch.cat((res_x, x), dim = 1) # Combine residual channels with current channel

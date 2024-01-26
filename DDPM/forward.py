@@ -14,6 +14,7 @@ def linear_beta_schedule(t, start=0.0001, end=0.02):
     return torch.linspace(start, end, t)
 
 T = CONFIG["total_timesteps"]
+
 beta = linear_beta_schedule(T)
 alpha = 1 - beta
 alpha_cumprod = torch.cumprod(alpha, axis =0)
@@ -38,7 +39,7 @@ def helper(vals, t, x_shape):
     out = vals.gather(-1, t.cpu())
     return out.reshape(batch_size, *((1,) * (len(x_shape) - 1))).to(t.device)
 
-def forward_diffusion(x_0, t, device="cpu"):
+def forward_diffusion(x_0 : torch.Tensor, t, device="cpu"):
     """
     @param t: Timestep.
 
