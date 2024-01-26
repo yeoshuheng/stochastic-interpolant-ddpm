@@ -2,9 +2,9 @@ from torch.utils.data import DataLoader
 from torchvision import datasets
 from torchvision import transforms
 import torch, ssl
-from config import CONFIG
+from src.config.config import CONFIG
 import matplotlib.pyplot as plt
-from DDPM import sample
+from src.DDPM import sample
 
 BATCH_SIZE, IMG_SIZE, T = CONFIG["batch_size"], CONFIG["img_size"], CONFIG["img_size"]
 

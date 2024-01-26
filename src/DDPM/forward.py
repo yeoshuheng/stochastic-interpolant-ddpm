@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-from config import CONFIG
+from src.config.config import CONFIG
 
 # Forward Process
 
